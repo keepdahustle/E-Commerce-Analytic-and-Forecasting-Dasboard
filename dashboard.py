@@ -796,13 +796,14 @@ def make_newsletter_fig():
 
 
 def build_eda_tab():
-    age_35_45_aov = df[df['age'].between(35, 45)]['avg_order_value_usd'].mean()
-    newsletter_lift = (
-        df[df['newsletter_subscribed'] == 1]['total_spend_usd'].mean() /
-        (df[df['newsletter_subscribed'] == 0]['total_spend_usd'].mean() + 1e-9) - 1
-    ) * 100
+    try:
+        age_35_45_aov = df[df['age'].between(35, 45)]['avg_order_value_usd'].mean()
+        newsletter_lift = (
+            df[df['newsletter_subscribed'] == 1]['total_spend_usd'].mean() /
+            (df[df['newsletter_subscribed'] == 0]['total_spend_usd'].mean() + 1e-9) - 1
+        ) * 100
 
-    return html.Div([
+        return html.Div([
         dbc.Row([
             dbc.Col(metric_card("TOTAL CUSTOMERS",   f"{total_customers:,}",    "+12.4% YoY", THEME['primary']),          md=3),
             dbc.Col(metric_card("TOTAL REVENUE",     f"${total_revenue:,.0f}",  "+18.7% YoY", THEME['primary_light']),  md=3),
@@ -903,7 +904,14 @@ def build_eda_tab():
                 }),
             ], md=4),
         ], className='g-3'),
-    ])
+        ])
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return html.Div([
+            html.H2("Error Loading EDA Tab", style={'color': '#FF6B9D', 'padding': '20px'}),
+            html.P(f"Error: {str(e)}", style={'color': '#999', 'padding': '20px', 'whiteSpace': 'pre-wrap', 'fontSize': '12px'}),
+        ], style=card())
 
 
 def make_forecast_fig(res, color):
